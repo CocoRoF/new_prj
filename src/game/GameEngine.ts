@@ -4,7 +4,9 @@
 import { Player } from './Player';
 import { Enemy, EnemySpawner } from './Enemy';
 import { Projectile, RapidFire, Shotgun } from './Weapon';
-import { Item, ItemSpawner, ItemType } from './Item';
+import { Item, ItemSpawner } from './Item';
+import { Boss } from './Boss';
+import { soundManager } from './SoundManager';
 
 export class GameEngine {
     private canvas: HTMLCanvasElement;
@@ -18,13 +20,16 @@ export class GameEngine {
     private fpsTimer: number = 0;
 
     // 게임 객체들
-    private player: Player;
+    private player!: Player;
     private enemies: Enemy[] = [];
-    private enemySpawner: EnemySpawner;
+    private enemySpawner!: EnemySpawner;
     private projectiles: Projectile[] = [];
     private items: Item[] = [];
-    private itemSpawner: ItemSpawner;
+    private itemSpawner!: ItemSpawner;
+    private boss: Boss | null = null;
     private score: number = 0;
+    private gameTime: number = 0;
+    private bossSpawnTime: number = 60000; // 1분 후 보스 스폰
 
     constructor(canvasId: string) {
         this.canvas = document.getElementById(canvasId) as HTMLCanvasElement;
@@ -78,12 +83,22 @@ export class GameEngine {
         this.enemies = [];
         this.items = [];
         this.projectiles = [];
+        this.boss = null;
         this.score = 0;
+        this.gameTime = 0;
+
+        // 배경음악 시작
+        soundManager.startGameMusic();
     }
 
     private handleKeyDown(event: KeyboardEvent): void {
         if (this.player) {
             this.player.setKeyState(event.key.toLowerCase(), true);
+        }
+        
+        // M 키로 사운드 토글
+        if (event.key.toLowerCase() === 'm') {
+            soundManager.toggleMute();
         }
     }
 
@@ -137,7 +152,15 @@ export class GameEngine {
             this.fpsTimer = 0;
         }
 
+        // 게임 시간 업데이트
+        this.gameTime += deltaTime;
+
         const currentTime = performance.now();
+
+        // 보스 스폰 체크 (1분 후)
+        if (!this.boss && this.gameTime >= this.bossSpawnTime) {
+            this.spawnBoss();
+        }
 
         // 플레이어 업데이트
         this.player.update(deltaTime, this.canvas.width, this.canvas.height);
@@ -162,6 +185,7 @@ export class GameEngine {
                 if (projectile.isCollidingWith(enemy)) {
                     // 적에게 데미지
                     enemy.takeDamage(projectile.damage);
+                    soundManager.playHitSound();
                     
                     // 발사체 제거
                     this.projectiles.splice(i, 1);
@@ -170,6 +194,7 @@ export class GameEngine {
                     if (!enemy.isAlive()) {
                         this.score += enemy.experienceValue;
                         this.player.gainExperience(enemy.experienceValue);
+                        soundManager.playEnemyDeathSound();
                         
                         // 아이템 드롭 (20% 확률)
                         if (Math.random() < 0.2) {
@@ -209,6 +234,7 @@ export class GameEngine {
             if (item.isCollidingWith(this.player)) {
                 // 아이템 효과 적용
                 this.applyItemEffect(item);
+                soundManager.playPickupSound();
                 
                 // 아이템 제거
                 this.items.splice(i, 1);
@@ -223,11 +249,73 @@ export class GameEngine {
             // 플레이어와 적의 충돌 검사
             if (enemy.isCollidingWith(this.player)) {
                 this.player.takeDamage(enemy.damage);
+                soundManager.playPlayerHurtSound();
                 console.log(`💥 플레이어가 데미지를 받았습니다! 체력: ${this.player.currentHealth}`);
 
                 // 적 제거 (충돌 후)
                 this.enemies.splice(i, 1);
                 continue;
+            }
+        }
+
+        // 보스 업데이트
+        if (this.boss) {
+            this.boss.update(deltaTime, this.player);
+
+            // 보스 발사체와 플레이어 충돌 검사
+            for (let i = this.boss.bossProjectiles.length - 1; i >= 0; i--) {
+                const bossProjectile = this.boss.bossProjectiles[i];
+                if (bossProjectile.isCollidingWith(this.player)) {
+                    this.player.takeDamage(bossProjectile.damage);
+                    soundManager.playPlayerHurtSound();
+                    console.log(`🔥 보스 공격에 맞았습니다! 체력: ${this.player.currentHealth}`);
+                    this.boss.bossProjectiles.splice(i, 1);
+                }
+            }
+
+            // 플레이어 발사체와 보스 충돌 검사
+            for (let i = this.projectiles.length - 1; i >= 0; i--) {
+                const projectile = this.projectiles[i];
+                if (this.boss.isCollidingWith(projectile)) {
+                    this.boss.takeDamage(projectile.damage);
+                    soundManager.playHitSound();
+                    this.projectiles.splice(i, 1);
+                    
+                    // 보스가 죽었으면
+                    if (!this.boss.isAlive()) {
+                        this.score += this.boss.experienceValue;
+                        this.player.gainExperience(this.boss.experienceValue);
+                        soundManager.playEnemyDeathSound();
+                        
+                        // 보스 보상 (아이템 여러 개 드롭)
+                        for (let j = 0; j < 5; j++) {
+                            const offsetX = (Math.random() - 0.5) * 100;
+                            const offsetY = (Math.random() - 0.5) * 100;
+                            this.itemSpawner.spawnItemAtPosition(
+                                this.items,
+                                this.boss.position.x + offsetX,
+                                this.boss.position.y + offsetY
+                            );
+                        }
+                        
+                        console.log('🎉 보스를 처치했습니다!');
+                        this.boss = null;
+                        
+                        // 다음 보스 스폰 시간 설정 (2분 후)
+                        this.bossSpawnTime = this.gameTime + 120000;
+                        
+                        // 배경음악을 일반 음악으로 변경
+                        soundManager.startGameMusic();
+                        break;
+                    }
+                }
+            }
+
+            // 플레이어와 보스 직접 충돌
+            if (this.boss && this.boss.isCollidingWith(this.player)) {
+                this.player.takeDamage(this.boss.damage);
+                soundManager.playPlayerHurtSound();
+                console.log(`👹 보스와 충돌했습니다! 체력: ${this.player.currentHealth}`);
             }
         }
 
@@ -289,6 +377,11 @@ export class GameEngine {
             enemy.render(this.ctx);
         }
 
+        // 보스 렌더링
+        if (this.boss) {
+            this.boss.render(this.ctx);
+        }
+
         // UI 렌더링
         this.renderUI();
     }
@@ -305,13 +398,31 @@ export class GameEngine {
         this.ctx.fillText(`점수: ${this.score}`, 10, 60);
         this.ctx.fillText(`경험치: ${this.player.experience}/${this.player.experienceToNext}`, 10, 80);
         this.ctx.fillText(`적 수: ${this.enemies.length}`, 10, 100);
-        this.ctx.fillText(`발사체 수: ${this.projectiles.length}`, 10, 120);
+        this.ctx.fillText(`발사체: ${this.projectiles.length} | 아이템: ${this.items.length}`, 10, 120);
+        
+        // 게임 시간 표시
+        const gameTimeSeconds = Math.floor(this.gameTime / 1000);
+        const minutes = Math.floor(gameTimeSeconds / 60);
+        const seconds = gameTimeSeconds % 60;
+        this.ctx.fillText(`시간: ${minutes}:${seconds.toString().padStart(2, '0')}`, 10, 140);
+        
+        // 보스 정보
+        if (this.boss) {
+            this.ctx.fillStyle = '#ff4444';
+            this.ctx.fillText(`👹 보스 체력: ${this.boss.currentHealth}/${this.boss.maxHealth}`, 10, 160);
+        } else {
+            const timeToNextBoss = Math.max(0, Math.ceil((this.bossSpawnTime - this.gameTime) / 1000));
+            if (timeToNextBoss > 0) {
+                this.ctx.fillStyle = '#ffaa00';
+                this.ctx.fillText(`다음 보스까지: ${timeToNextBoss}초`, 10, 160);
+            }
+        }
 
         // 체력바
         const healthBarWidth = 200;
         const healthBarHeight = 20;
         const healthBarX = 10;
-        const healthBarY = 135;
+        const healthBarY = 175;
 
         // 체력바 배경
         this.ctx.fillStyle = '#660000';
@@ -349,10 +460,31 @@ export class GameEngine {
             this.ctx.fillText(`${weapon.name} Lv.${weapon.level}`, 20, expBarY + 50 + i * 16);
         }
 
+        // 활성 효과 표시
+        let effectY = expBarY + 50 + this.player.weapons.length * 16 + 20;
+        if (this.player.hasActiveEffects()) {
+            this.ctx.fillText('✨ 활성 효과:', 10, effectY);
+            effectY += 20;
+            
+            if (this.player.speedBoostDuration > 0) {
+                const remainingTime = Math.ceil(this.player.speedBoostDuration / 1000);
+                this.ctx.fillStyle = '#00ff00';
+                this.ctx.fillText(`💨 속도 증가 (${remainingTime}초)`, 20, effectY);
+                effectY += 16;
+            }
+            
+            if (this.player.damageBoostDuration > 0) {
+                const remainingTime = Math.ceil(this.player.damageBoostDuration / 1000);
+                this.ctx.fillStyle = '#ff8800';
+                this.ctx.fillText(`⚔️ 데미지 증가 (${remainingTime}초)`, 20, effectY);
+                effectY += 16;
+            }
+        }
+
         // 조작법 표시
         this.ctx.fillStyle = '#aaaaaa';
         this.ctx.font = '12px monospace';
-        this.ctx.fillText('WASD: 이동 | 자동 공격', 10, this.canvas.height - 20);
+        this.ctx.fillText('WASD: 이동 | M: 사운드 토글 | 자동 공격', 10, this.canvas.height - 20);
     }
 
     private applyItemEffect(item: Item): void {
@@ -381,6 +513,45 @@ export class GameEngine {
         } else {
             this.player.addWeapon(new WeaponClass());
         }
+    }
+
+    private spawnBoss(): void {
+        const bossTypes = ['basic', 'flame_lord', 'ice_queen'];
+        const bossType = bossTypes[Math.floor(Math.random() * bossTypes.length)];
+        
+        // 랜덤 위치에서 보스 스폰 (가장자리)
+        const side = Math.floor(Math.random() * 4);
+        let x, y;
+        
+        switch (side) {
+            case 0: // 위
+                x = Math.random() * this.canvas.width;
+                y = -50;
+                break;
+            case 1: // 오른쪽
+                x = this.canvas.width + 50;
+                y = Math.random() * this.canvas.height;
+                break;
+            case 2: // 아래
+                x = Math.random() * this.canvas.width;
+                y = this.canvas.height + 50;
+                break;
+            case 3: // 왼쪽
+                x = -50;
+                y = Math.random() * this.canvas.height;
+                break;
+            default:
+                x = this.canvas.width / 2;
+                y = this.canvas.height / 2;
+        }
+        
+        this.boss = new Boss(x, y, bossType);
+        this.boss.canvasWidth = this.canvas.width;
+        this.boss.canvasHeight = this.canvas.height;
+        
+        soundManager.playBossSpawnSound();
+        soundManager.startBossMusic();
+        console.log(`👹 보스 등장! ${bossType}`);
     }
 
     // 게터 메서드들

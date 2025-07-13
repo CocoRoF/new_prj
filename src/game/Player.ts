@@ -1,4 +1,5 @@
 import { BasicGun, Weapon } from './Weapon';
+import { soundManager } from './SoundManager';
 
 /**
  * Vector2D - 2D 벡터 계산을 위한 클래스
@@ -179,12 +180,13 @@ export class Player {
         this.level++;
         this.experienceToNext = Math.floor(this.experienceToNext * 1.2);
 
-        // 레벨업 보너스
-        this.maxHealth += 10;
-        this.currentHealth = this.maxHealth; // 체력 완전 회복
-        this.speed += 5; // 속도 증가
+    // 레벨업 보너스
+    this.maxHealth += 10;
+    this.currentHealth = this.maxHealth; // 체력 완전 회복
+    this.speed += 5; // 속도 증가
 
-        console.log(`🎉 레벨업! 레벨 ${this.level}`);
+    soundManager.playLevelUpSound();
+    console.log(`🎉 레벨업! 레벨 ${this.level}`);
     }
 
     public isAlive(): boolean {

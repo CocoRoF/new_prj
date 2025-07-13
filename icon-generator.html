@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Icon Generator</title>
+    <style>
+        canvas { border: 1px solid #ccc; margin: 10px; }
+    </style>
+</head>
+<body>
+    <h3>Vampire Survivors Clone - Game Icon</h3>
+    <canvas id="iconCanvas" width="128" height="128"></canvas>
+    
+    <script>
+        const canvas = document.getElementById('iconCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 배경 (어두운 원)
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(0, 0, 128, 128);
+        
+        // 외곽 원
+        ctx.fillStyle = '#ff6b6b';
+        ctx.beginPath();
+        ctx.arc(64, 64, 60, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // 내부 원
+        ctx.fillStyle = '#8B0000';
+        ctx.beginPath();
+        ctx.arc(64, 64, 45, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // 플레이어 (초록 점)
+        ctx.fillStyle = '#4CAF50';
+        ctx.beginPath();
+        ctx.arc(64, 64, 12, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // 적들 (작은 빨간 점들)
+        const enemies = [
+            {x: 40, y: 40}, {x: 88, y: 40},
+            {x: 40, y: 88}, {x: 88, y: 88}
+        ];
+        
+        ctx.fillStyle = '#ff0000';
+        enemies.forEach(enemy => {
+            ctx.beginPath();
+            ctx.arc(enemy.x, enemy.y, 6, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        
+        // 발사체들 (노란 점들)
+        const projectiles = [
+            {x: 52, y: 52}, {x: 76, y: 52},
+            {x: 52, y: 76}, {x: 76, y: 76}
+        ];
+        
+        ctx.fillStyle = '#ffff00';
+        projectiles.forEach(proj => {
+            ctx.beginPath();
+            ctx.arc(proj.x, proj.y, 2, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        
+        console.log('게임 아이콘이 생성되었습니다!');
+        console.log('실제 사용을 위해서는 이 캔버스를 PNG로 저장하고 다양한 크기로 리사이즈해야 합니다.');
+    </script>
+</body>
+</html>
