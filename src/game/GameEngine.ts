@@ -31,10 +31,10 @@ export class GameEngine {
     private gameTime: number = 0;
     private bossSpawnTime: number = 60000; // 1분 후 보스 스폰
 
-    constructor(canvasId: string) {
-        this.canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+    constructor(canvas: HTMLCanvasElement) {
+        this.canvas = canvas;
         if (!this.canvas) {
-            throw new Error(`Canvas element with id "${canvasId}" not found`);
+            throw new Error('Canvas element is required');
         }
 
         const ctx = this.canvas.getContext('2d');

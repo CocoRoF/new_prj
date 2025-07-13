@@ -1,14 +1,158 @@
-/* 메인 메뉴 스타일 */
+/* 글꼴 로드 (Google Fonts) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* 제목 */
+/* 전역 CSS 변수 및 기본 설정 */
+:root {
+  /* 색상 팔레트 - 모던한 다크 테마 */
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #0f0f0f;
+  --text-primary: #ffffff;
+  --text-secondary: #e0e0e0;
+  --text-accent: #64ffda;
+  --button-bg: rgba(255, 255, 255, 0.05);
+  --button-border: rgba(255, 255, 255, 0.15);
+  --button-hover: rgba(255, 255, 255, 0.1);
+  --shadow-glow: rgba(100, 255, 218, 0.2);
+  
+  /* 폰트 설정 */
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--text-secondary);
+  background-color: var(--bg-primary);
+  
+  /* 렌더링 최적화 */
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 전역 리셋 */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(135deg, 
+    var(--bg-primary) 0%, 
+    #0d1b2a 25%, 
+    #1b263b 50%, 
+    #0d1b2a 75%, 
+    var(--bg-primary) 100%);
+  background-attachment: fixed;
+}
+
+/* 메인 앱 컨테이너 */
+#app {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+/* 메인 레이아웃 - 좌우 분할 */
+.main-layout {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+/* 좌측 이미지 섹션 */
+.image-section {
+  flex: 1;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: linear-gradient(45deg, 
+    rgba(100, 255, 218, 0.05) 0%, 
+    rgba(100, 255, 218, 0.02) 50%, 
+    transparent 100%);
+}
+
+.main-image {
+  max-width: 80%;
+  max-height: 80vh;
+  height: auto;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 20px 40px rgba(100, 255, 218, 0.1));
+  transition: all 0.3s ease;
+}
+
+.main-image:hover {
+  filter: drop-shadow(0 25px 50px rgba(100, 255, 218, 0.2));
+  transform: scale(1.02);
+}
+
+/* 우측 메뉴 섹션 */
+.menu-section {
+  flex: 1;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0 60px;
+  position: relative;
+}
+
+/* 배경 글로우 효과 */
+.menu-section::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, var(--shadow-glow) 0%, transparent 70%);
+  opacity: 0.3;
+  z-index: -1;
+  animation: pulse 4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+/* 세련된 제목 */
 h1 {
-  font-size: clamp(4rem, 8vw, 8rem);
-  line-height: 1.1;
+  font-size: clamp(3.5rem, 6vw, 7rem);
+  font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 clamp(2rem, 4vh, 6rem) 0;
-  text-shadow: 0 0 40px rgba(255, 255, 255, 0.4);
-  font-weight: 300;
-  letter-spacing: clamp(3px, 0.5vw, 12px);
+  margin: 0 0 clamp(3rem, 6vh, 5rem) 0;
+  letter-spacing: clamp(2px, 0.3vw, 8px);
+  text-align: center;
+  position: relative;
+  
+  /* 그라디언트 텍스트 */
+  background: linear-gradient(135deg, 
+    var(--text-primary) 0%, 
+    var(--text-accent) 50%, 
+    var(--text-primary) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  
+  /* 텍스트 그림자 */
+  filter: drop-shadow(0 4px 20px rgba(100, 255, 218, 0.3));
+  
   user-select: none;
 }
 
@@ -16,100 +160,154 @@ h1 {
 .main-menu {
   display: flex;
   flex-direction: column;
-  gap: clamp(20px, 3vh, 50px);
+  gap: clamp(20px, 3vh, 30px);
   align-items: center;
-  margin: 0;
-  padding: 0;
-  border: none;
+  width: 100%;
+  max-width: 400px;
 }
 
-/* 버튼 스타일 */
+/* 모던한 버튼 스타일 */
 button {
-  --button-bg: linear-gradient(145deg, #2a2a2a, #1a1a1a);
-  --button-bg-hover: linear-gradient(145deg, #3a3a3a, #2a2a2a);
-  --button-bg-disabled: linear-gradient(145deg, #1a1a1a, #0a0a0a);
-  --button-border: #333;
-  --button-border-hover: #555;
-  --button-border-disabled: #222;
-  
   background: var(--button-bg);
   color: var(--text-primary);
-  border: 2px solid var(--button-border);
-  padding: clamp(15px, 2.5vh, 25px) clamp(40px, 6vw, 80px);
-  font-size: clamp(1.2rem, 2.5vw, 2.2rem);
+  border: 1px solid var(--button-border);
+  padding: clamp(18px, 3vh, 22px) clamp(40px, 8vw, 60px);
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
   font-weight: 500;
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: clamp(250px, 25vw, 400px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  min-width: 280px;
   text-transform: uppercase;
-  letter-spacing: clamp(1px, 0.2vw, 3px);
+  letter-spacing: clamp(1px, 0.15vw, 2px);
   user-select: none;
   font-family: inherit;
-  background: blue !important; /* 임시 디버깅 */
+  position: relative;
+  overflow: hidden;
+  
+  /* 백드롭 필터 */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
+/* 버튼 호버 효과 */
 button:hover:not(:disabled) {
-  background: var(--button-bg-hover);
-  border-color: var(--button-border-hover);
+  background: var(--button-hover);
+  border-color: var(--text-accent);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.3),
+    0 0 30px var(--shadow-glow);
+  color: var(--text-accent);
 }
 
+/* 버튼 클릭 효과 */
 button:active:not(:disabled) {
   transform: translateY(0);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+  box-shadow: 
+    0 5px 15px rgba(0, 0, 0, 0.4),
+    0 0 20px var(--shadow-glow);
 }
 
+/* 비활성화된 버튼 */
 button:disabled {
-  background: var(--button-bg-disabled);
-  color: #666;
-  border-color: var(--button-border-disabled);
+  background: rgba(255, 255, 255, 0.02);
+  color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.05);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
+/* 버튼 포커스 제거 */
 button:focus,
 button:focus-visible {
   outline: none;
 }
 
-/* 반응형 조정 */
-@media screen and (min-width: 1920px) {
-  h1 {
-    font-size: 8rem;
-    letter-spacing: 10px;
-    margin-bottom: 5rem;
+
+
+/* 게임 캔버스 */
+#game-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--bg-tertiary);
+  border: none;
+  outline: none;
+  cursor: crosshair;
+  z-index: 10;
+  image-rendering: pixelated;
+}
+
+/* 게임 모드 시 메인 레이아웃 숨김 */
+.game-active .main-layout {
+  display: none !important;
+}
+
+.game-active {
+  overflow: hidden;
+}
+
+/* 반응형 디자인 */
+@media screen and (max-width: 1200px) {
+  .main-layout {
+    flex-direction: column;
+    gap: 20px;
   }
   
-  button {
-    padding: 25px 70px;
-    font-size: 2.2rem;
-    min-width: 400px;
-    letter-spacing: 2px;
+  .image-section,
+  .menu-section {
+    flex: none;
+    height: auto;
   }
   
-  .main-menu {
-    gap: 50px;
+  .image-section {
+    height: 40vh;
+    min-height: 200px;
+  }
+  
+  .menu-section {
+    height: 60vh;
+    padding: 20px 40px;
+  }
+  
+  .main-image {
+    max-height: 30vh;
   }
 }
 
-@media screen and (max-width: 1919px) {
-  h1 {
-    font-size: 6rem;
-    letter-spacing: 8px;
-    margin-bottom: 4rem;
-  }
-  
-  button {
-    padding: 20px 60px;
-    font-size: 1.8rem;
-    min-width: 350px;
-    letter-spacing: 2px;
+@media screen and (max-width: 768px) {
+  .menu-section {
+    padding: 20px;
   }
   
   .main-menu {
-    gap: 40px;
+    max-width: 100%;
   }
+  
+  button {
+    min-width: 240px;
+  }
+}
+
+/* 텍스트 선택 방지 */
+body, button, h1, img {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* 스크롤바 숨김 */
+::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
