@@ -1,0 +1,115 @@
+/* 메인 메뉴 스타일 */
+
+/* 제목 */
+h1 {
+  font-size: clamp(4rem, 8vw, 8rem);
+  line-height: 1.1;
+  color: var(--text-primary);
+  margin: 0 0 clamp(2rem, 4vh, 6rem) 0;
+  text-shadow: 0 0 40px rgba(255, 255, 255, 0.4);
+  font-weight: 300;
+  letter-spacing: clamp(3px, 0.5vw, 12px);
+  user-select: none;
+}
+
+/* 메뉴 컨테이너 */
+.main-menu {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(20px, 3vh, 50px);
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+/* 버튼 스타일 */
+button {
+  --button-bg: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+  --button-bg-hover: linear-gradient(145deg, #3a3a3a, #2a2a2a);
+  --button-bg-disabled: linear-gradient(145deg, #1a1a1a, #0a0a0a);
+  --button-border: #333;
+  --button-border-hover: #555;
+  --button-border-disabled: #222;
+  
+  background: var(--button-bg);
+  color: var(--text-primary);
+  border: 2px solid var(--button-border);
+  padding: clamp(15px, 2.5vh, 25px) clamp(40px, 6vw, 80px);
+  font-size: clamp(1.2rem, 2.5vw, 2.2rem);
+  font-weight: 500;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: clamp(250px, 25vw, 400px);
+  text-transform: uppercase;
+  letter-spacing: clamp(1px, 0.2vw, 3px);
+  user-select: none;
+  font-family: inherit;
+  background: blue !important; /* 임시 디버깅 */
+}
+
+button:hover:not(:disabled) {
+  background: var(--button-bg-hover);
+  border-color: var(--button-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+}
+
+button:disabled {
+  background: var(--button-bg-disabled);
+  color: #666;
+  border-color: var(--button-border-disabled);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+button:focus,
+button:focus-visible {
+  outline: none;
+}
+
+/* 반응형 조정 */
+@media screen and (min-width: 1920px) {
+  h1 {
+    font-size: 8rem;
+    letter-spacing: 10px;
+    margin-bottom: 5rem;
+  }
+  
+  button {
+    padding: 25px 70px;
+    font-size: 2.2rem;
+    min-width: 400px;
+    letter-spacing: 2px;
+  }
+  
+  .main-menu {
+    gap: 50px;
+  }
+}
+
+@media screen and (max-width: 1919px) {
+  h1 {
+    font-size: 6rem;
+    letter-spacing: 8px;
+    margin-bottom: 4rem;
+  }
+  
+  button {
+    padding: 20px 60px;
+    font-size: 1.8rem;
+    min-width: 350px;
+    letter-spacing: 2px;
+  }
+  
+  .main-menu {
+    gap: 40px;
+  }
+}

@@ -49,15 +49,32 @@ export class GameEngine {
     }
 
     private setupCanvas(): void {
-        // 캔버스 크기 설정
-        this.canvas.width = 800;
-        this.canvas.height = 600;
+        // 캔버스 크기를 뷰포트 크기로 설정
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        
+        // 창 크기 변경 이벤트 리스너 추가
+        window.addEventListener('resize', this.resizeCanvas.bind(this));
+        
+        // 캔버스 스타일 설정 (CSS로 관리되지만 확실히 하기 위해)
+        this.canvas.style.position = 'fixed';
+        this.canvas.style.top = '0';
+        this.canvas.style.left = '0';
+        this.canvas.style.width = '100vw';
+        this.canvas.style.height = '100vh';
+        this.canvas.style.zIndex = '10';
+        this.canvas.style.background = '#0f0f0f';
+        this.canvas.style.cursor = 'crosshair';
+        
+        console.log(`Canvas initialized: ${this.canvas.width}x${this.canvas.height}`);
+    }
 
-        // 캔버스 스타일 설정
-        this.canvas.style.border = '2px solid #ff6b6b';
-        this.canvas.style.backgroundColor = '#1a1a1a';
-        this.canvas.style.display = 'block';
-        this.canvas.style.margin = '20px auto';
+    private resizeCanvas(): void {
+        // 뷰포트 크기로 캔버스 크기 조정
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        
+        console.log(`Canvas resized: ${this.canvas.width}x${this.canvas.height}`);
     }
 
     private setupEventListeners(): void {
@@ -70,8 +87,10 @@ export class GameEngine {
     }
 
     private initializeGame(): void {
-        // 플레이어를 캔버스 중앙에 생성
-        this.player = new Player(this.canvas.width / 2, this.canvas.height / 2);
+        // 플레이어를 화면 중앙에 생성 (실제 뷰포트 기준)
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        this.player = new Player(centerX, centerY);
 
         // 적 스포너 생성
         this.enemySpawner = new EnemySpawner();
@@ -328,9 +347,20 @@ export class GameEngine {
     }
 
     private render(): void {
-        // 화면 클리어
-        this.ctx.fillStyle = '#0a0a0a';
+        // 캔버스 크기 재확인 (디버그용)
+        if (this.canvas.width !== window.innerWidth || this.canvas.height !== window.innerHeight) {
+            this.canvas.width = window.innerWidth;
+            this.canvas.height = window.innerHeight;
+        }
+        
+        // 화면 클리어 - 더 명확한 배경색 사용
+        this.ctx.fillStyle = '#0f0f0f';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // 디버그: 캔버스 테두리 그리기 (임시)
+        this.ctx.strokeStyle = '#ff0000';
+        this.ctx.lineWidth = 4;
+        this.ctx.strokeRect(2, 2, this.canvas.width - 4, this.canvas.height - 4);
 
         // 플레이어 렌더링 (효과가 있으면 특별한 색상)
         if (this.player.hasActiveEffects()) {

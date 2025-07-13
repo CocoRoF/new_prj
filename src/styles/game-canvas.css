@@ -1,0 +1,34 @@
+/* 게임 캔버스 스타일 */
+
+#game-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--bg-tertiary);
+  border: none;
+  outline: none;
+  cursor: crosshair;
+  z-index: 10;
+  
+  /* 픽셀 아트 게임용 렌더링 */
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* 게임 모드 시 다른 요소들 숨김 */
+.game-active #app > *:not(#game-canvas) {
+  display: none !important;
+}
+
+.game-active {
+  overflow: hidden;
+}
+
+/* 캔버스가 숨겨져 있을 때 */
+#game-canvas[style*="display: none"] {
+  display: none !important;
+}
